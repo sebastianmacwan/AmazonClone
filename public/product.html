@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Product Details - Amazon Clone</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Custom CSS for Inter font and general styling -->
+     <!-- <link rel="stylesheet" href="global.css"> -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar, .footer {
+            flex-shrink: 0; /* Prevent navbar and footer from shrinking */
+        }
+        .container {
+            flex-grow: 1; /* Allow content area to grow */
+        }
+        .rounded {
+            border-radius: 0.5rem !important; /* Tailwind-like rounded corners */
+        }
+        .btn {
+            border-radius: 0.375rem; /* Slightly rounded buttons */
+        }
+        /* Message box styling */
+        #messageBox {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050; /* Above Bootstrap modals */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none; /* Hidden by default */
+            color: #fff;
+            font-weight: bold;
+        }
+        #messageBox.success {
+            background-color: #28a745; /* Green for success */
+        }
+        #messageBox.error {
+            background-color: #dc3545; /* Red for error */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <!-- Changed bg-dark to bg-primary for consistency with index.html -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+        <a class="navbar-brand" href="index.html">Amazon Clone</a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
+                <!-- Login, Signup, and Cart links inserted dynamically by JS -->
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Product Details -->
+    <div class="container my-4">
+        <div id="productDetails" class="row">
+            <!-- Product details will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Message Box for alerts -->
+    <div id="messageBox"></div>
+
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>About Amazon Clone</h5>
+                    <p>This is a simple Amazon clone built with Bootstrap and JavaScript.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-white">Home</a></li>
+                        <li><a href="cart.html" class="text-white">Cart</a></li>
+                        <li><a href="profile.html" class="text-white">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h5>Contact</h5>
+                    <p>Email: support@amazonclone.com</p>
+                    <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Backend API base URL
+          const API_BASE_URL = 'http://localhost:5000'; // Adjust if your backend runs on a different port/host
+
+        // DOM elements
+        const productDetailsEl = document.getElementById("productDetails");
+        const navLinks = document.getElementById("nav-links");
+        const messageBox = document.getElementById("messageBox");
+
+        // Global variables for user and product state
+        let product = JSON.parse(sessionStorage.getItem("selectedProduct"));
+        let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+        // The 'cart' variable here is mainly for the renderNav to update.
+        // The source of truth for cart items is the backend.
+        let cart = []; // No longer initialized from localStorage directly here, will fetch from backend
+
+        // --- Helper function to display messages instead of alert() ---
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = ''; // Clear previous classes
+            messageBox.classList.add(type);
+            messageBox.style.display = 'block';
+
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // --- Render Product Details ---
+        if (!product) {
+            productDetailsEl.innerHTML = `
+                <div class="col-12 text-center my-5">
+                    <h3 class="text-danger">No product selected.</h3>
+                    <p class="mt-3">Please go back to the home page to select a product.</p>
+                    <a href="index.html" class="btn btn-primary mt-3 rounded">Back to Home</a>
+                </div>
+            `;
+        } else {
+            // Updated to use product.image and product.description from DB schema
+            productDetailsEl.innerHTML = `
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <img src="${product.image || 'https://placehold.co/400x400?text=No+Image'}" alt="${product.title}" class="img-fluid rounded shadow-sm" />
+                </div>
+                <div class="col-md-6">
+                    <h2 class="fw-bold">${product.title}</h2>
+                    <h4 class="text-danger mb-3">${typeof product.price === 'number' ? `₹${product.price.toFixed(2)}` : product.price}</h4>
+                    <p class="text-muted">${product.description || 'No description available for this product.'}</p>
+                    <div class="d-flex align-items-center mt-4">
+                        <button id="addToCartBtn" class="btn btn-primary btn-lg rounded me-2">Add to Cart</button>
+                        <a href="cart.html" class="btn btn-outline-secondary btn-lg rounded">View Cart</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Add to Cart functionality ---
+        if (product) {
+            document.getElementById("addToCartBtn").addEventListener("click", async () => {
+                if (!currentUser || !currentUser.id) {
+                    showMessage("Please login to add items to cart.", "error");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1500); // Redirect after message is shown
+                    return;
+                }
+
+                // Prepare product data for the backend
+                const productPriceNumeric = parseFloat(String(product.price).replace(/[^0-9.-]+/g, ""));
+                if (isNaN(productPriceNumeric)) {
+                    showMessage("Invalid product price detected. Cannot add to cart.", "error");
+                    console.error("Product price is not a valid number:", product.price);
+                    return;
+                }
+
+                const cartItemPayload = {
+                    user_id: currentUser.id,
+                    product_title: product.title,
+                    product_image: product.image || null, // Use product.image
+                    product_desc: product.description || null,   // Use product.description
+                    product_price: productPriceNumeric,
+                    quantity: 1 // Always add 1 at a time from this page
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/cart/add`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // Add Authorization header here if your backend uses it (e.g., JWT)
+                            // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(cartItemPayload)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) { // Check if status is 2xx
+                        showMessage(data.message || "Product added to cart successfully!");
+                        updateNavCartCount(); // Update the cart count in navbar
+                    } else {
+                        // Handle server-side errors (e.g., 400, 500)
+                        console.error('Failed to add to cart:', data.message || response.statusText);
+                        showMessage(data.message || "Failed to add product to cart. Please try again.", "error");
+                    }
+                } catch (error) {
+                    // Handle network errors (e.g., server unreachable)
+                    console.error('Network error during add to cart:', error);
+                    showMessage("Network error: Could not connect to the server.", "error");
+                }
+            });
+        }
+
+        // --- Helper function to update cart count badge visually in navbar ---
+        async function updateNavCartCount() {
+            let cartLength = 0;
+            if (currentUser && currentUser.id) {
+                try {
+                    // Fetch the user's cart from the backend to get the latest count
+                    // CRITICAL: Pass user_id as a query parameter for GET request
+                    const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.cartItems) {
+                        cartLength = data.cartItems.length; // Use the actual length from the backend
+                    } else {
+                        console.error('Failed to fetch updated cart for count:', data.message || response.statusText);
+                        cartLength = 0; // Default to 0 if fetch fails
+                    }
+                } catch (error) {
+                    console.error('Error fetching cart count for navigation:', error);
+                    cartLength = 0; // Default to 0 on network error
+                }
+            }
+            const cartCountEl = document.getElementById("cart-count");
+            if (cartCountEl) cartCountEl.textContent = cartLength;
+        }
+
+
+        // --- Render navigation based on login state ---
+        async function renderNav() {
+            if (!navLinks) {
+                console.error("Navigation links element not found. Cannot render navigation.");
+                return;
+            }
+            navLinks.innerHTML = "";
+            let cartLength = 0; // Initialize cartLength here
+
+            if (currentUser && currentUser.id) {
+                // Fetch the actual cart length from backend for the current user
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // If you implement JWT auth
+                        }
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.cartItems) {
+                        cartLength = data.cartItems.length;
+                    } else {
+                        console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+                        cartLength = 0; // Default to 0 on error
+                    }
+                } catch (error) {
+                    console.error('Network error getting cart count for navigation:', error);
+                    cartLength = 0; // Default to 0 on network error
+                }
+
+
+                navLinks.innerHTML = `
+                    <li class="nav-item">
+                        <a class="nav-link" href="profile.html">Profile (${currentUser.username})</a>
+                    </li>
+                    <li class="nav-item position-relative ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                            Cart
+                            <span
+                                id="cart-count"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            >${cartLength}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
+                    </li>`;
+            } else {
+                // Guest user
+                navLinks.innerHTML = `
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="signup.html">Signup</a>
+                    </li>
+                    <li class="nav-item position-relative ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                            Cart
+                            <span
+                                id="cart-count"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            >${cartLength}</span>
+                        </a>
+                    </li>`;
+            }
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", () => {
+                    localStorage.removeItem("currentUser");
+                    currentUser = null;
+                    location.reload();
+                });
+            }
+        }
+
+
+        // // Mode toggle function
+        // let classes = ["bg-white", "bg-info", "bg-success", "bg-dark"];
+        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
+        // let current = 0;
+        // function mode() {
+        //     const body = document.body;
+        //     body.classList.remove(...classes, "text-white", "text-dark");
+        //     current = (current + 1) % classes.length;
+        //     body.classList.add(classes[current], textColors[current]);
+        //     body.style.backgroundImage = "none"; // Remove background image if any
+        // }
+
+        // Initial render logic
+        document.addEventListener('DOMContentLoaded', async () => {
+            await renderNav(); // Render navigation and fetch cart count on load
+        });
+    </script>
+    <script src="global.js"></script>
+</body>
+</html>
+

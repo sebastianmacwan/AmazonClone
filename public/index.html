@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amazon Clone - Home</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar,
+        .footer {
+            flex-shrink: 0;
+        }
+
+        .container {
+            flex-grow: 1;
+        }
+
+        .product-card {
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            object-fit: cover;
+            height: 200px;
+            /* Fixed height for product images */
+            width: 100%;
+        }
+
+        /* Message box styling (consistent across pages) */
+        #messageBox {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            /* Above Bootstrap modals */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            /* Hidden by default */
+            color: #fff;
+            font-weight: bold;
+        }
+
+        #messageBox.success {
+            background-color: #28a745;
+        }
+
+        #messageBox.error {
+            background-color: #dc3545;
+        }
+
+        #messageBox.info {
+            background-color: #17a2b8;
+        }
+
+        /* Styles for search suggestion list */
+        #suggestionList {
+            z-index: 10;
+            /* Ensure it appears above other content */
+            width: 100%;
+            /* Match width of search box */
+            max-height: 300px;
+            /* Max height for scrollability */
+            overflow-y: auto;
+            /* Enable scrolling if too many suggestions */
+            border: 1px solid #ddd;
+            border-top: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <!-- Assuming you might have a global.css -->
+    <link rel="stylesheet" href="global.css">
+</head>
+
+<body class="bg-white text-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+        <a class="navbar-brand" href="index.html">Amazon Clone</a>
+        <div id="user-name-container" class="d-flex align-items-center text-center ms-3 text-uppercase"
+            style="color: #fff; font-weight: bold;">
+            <!-- Username or empty -->
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
+                <!-- Content will be injected by JS -->
+            </ul>
+            <div class="px-3">
+                <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
+
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Search Bar -->
+    <div class="container my-3 position-relative" style="max-width: 600px; margin:auto;">
+        <input type="text" id="searchBox" class="form-control rounded" placeholder="Search products..."
+            autocomplete="off" />
+        <ul id="suggestionList" class="list-group position-absolute top-100 start-0 rounded"></ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <h1 class="mb-4 text-center">Featured Products</h1>
+        <!-- Required DOM elements for script functionality -->
+        <div id="loadingMessage" class="alert alert-info text-center rounded" style="display: block;">
+            Loading products...
+        </div>
+        <div id="productGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <!-- Products will be loaded here -->
+        </div>
+        <div id="noProductsMessage" class="alert alert-warning text-center mt-4 rounded" style="display: none;">
+            No products available at the moment. Please check back later!
+        </div>
+        <!-- Message box for alerts -->
+        <div id="messageBox"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>About Amazon Clone</h5>
+                    <p>This is a simple Amazon clone built with Bootstrap and JavaScript.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-white">Home</a></li>
+                        <li><a href="cart.html" class="text-white">Cart</a></li>
+                        <li><a href="profile.html" class="text-white">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="contact.html" class="btn btn-outline-light btn-sm rounded">
+                        <h5 class="mb-0 text-white">Contact</h5>
+                    </a>
+                    <p class="mt-2">Email: support@amazonclone.com</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Backend API base URL - IMPORTANT: Make sure this matches your server.js port
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // DOM elements
+        const productGrid = document.getElementById('productGrid');
+        const loadingMessageEl = document.getElementById('loadingMessage');
+        const noProductsMessageEl = document.getElementById('noProductsMessage');
+        const navLinks = document.getElementById('nav-links');
+        const messageBox = document.getElementById("messageBox");
+        const searchBox = document.getElementById("searchBox");
+        const suggestionList = document.getElementById("suggestionList");
+        const userNameContainer = document.getElementById("user-name-container");
+
+        // Global variables for user and product state
+        let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+        let products = []; // This will store all products fetched from the backend
+
+        // --- Helper function to display messages instead of alert() ---
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = ''; // Clear previous classes
+            messageBox.classList.add(type);
+            messageBox.style.display = 'block';
+
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // --- Fetch Products from Backend ---
+        async function fetchProducts() {
+            if (!loadingMessageEl || !productGrid || !noProductsMessageEl) {
+                console.error("DOM elements for product display not found. Check index.html for correct IDs.");
+                showMessage('An internal error occurred: Page elements missing.', 'error');
+                return;
+            }
+
+            loadingMessageEl.style.display = 'block';
+            productGrid.innerHTML = '';
+            noProductsMessageEl.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/products`);
+                const data = await response.json();
+
+                if (response.ok && data.products) {
+                    products = data.products;
+                    if (products.length === 0) {
+                        noProductsMessageEl.style.display = 'block';
+                    } else {
+                        renderProducts(products);
+                    }
+                } else {
+                    console.error('Failed to fetch products:', data.message || response.statusText);
+                    showMessage(data.message || 'Failed to load products. Please try again.', 'error');
+                    noProductsMessageEl.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Network error during product fetch:', error);
+                showMessage('Network error: Could not connect to the server to load products.', 'error');
+                noProductsMessageEl.style.display = 'block';
+            } finally {
+                loadingMessageEl.style.display = 'none';
+            }
+        }
+
+        // --- Render Products to the Grid ---
+        function renderProducts(productsToRender) {
+            if (!productGrid) {
+                console.error("Product grid element not found. Cannot render products.");
+                return;
+            }
+
+            productGrid.innerHTML = '';
+
+            if (productsToRender.length === 0) {
+                noProductsMessageEl.style.display = 'block';
+                return;
+            } else {
+                noProductsMessageEl.style.display = 'none';
+            }
+
+            // Normalize products: replace _id with id
+            const normalizedProducts = productsToRender.map(product => ({
+                id: product._id || product.id,
+                title: product.title,
+                image: product.image,
+                description: product.description,
+                price: product.price
+            }));
+
+            // Save globally for event access
+            window.products = normalizedProducts;
+
+            normalizedProducts.forEach(product => {
+                const col = document.createElement('div');
+                col.classList.add('col-12', 'col-sm-6', 'col-md-4', 'col-lg-3');
+                col.innerHTML = `
+            <div class="card h-100 product-card" data-product-id="${product.id}">
+                <img src="${product.image || 'https://placehold.co/400x200?text=No+Image'}" class="card-img-top" alt="${product.title}">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">${product.title}</h5>
+                    <p class="card-text text-info text-truncate">${product.description || 'No description.'}</p>
+                    <p class="card-text fw-bold text-danger">₹${parseFloat(product.price).toFixed(2)}</p>
+                    <div class="mt-auto d-flex justify-content-between">
+                        <button class="btn btn-primary btn-sm rounded add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                        <button class="btn btn-outline-secondary btn-sm rounded view-detail-btn" data-product-id="${product.id}">View Details</button>
+                    </div>
+                </div>
+            </div>
+        `;
+                productGrid.appendChild(col);
+            });
+
+            // Attach listeners after rendering
+            attachProductCardEventListeners();
+        }
+
+        function attachProductCardEventListeners() {
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    if (!currentUser || !currentUser.id) {
+                        showMessage("Please login to add items to cart.", "error");
+                        setTimeout(() => {
+                            window.location.href = "login.html";
+                        }, 1500);
+                        return;
+                    }
+
+                    const productId = event.currentTarget.dataset.productId;
+                    const productToAdd = window.products.find(p => String(p.id) === String(productId));
+
+                    if (!productToAdd) {
+                        showMessage("Error: Product details not found.", "error");
+                        console.error("Product not found in array:", productId);
+                        return;
+                    }
+
+                    const productPriceNumeric = parseFloat(String(productToAdd.price).replace(/[^0-9.-]+/g, ""));
+                    if (isNaN(productPriceNumeric)) {
+                        showMessage("Invalid product price. Cannot add to cart.", "error");
+                        console.error("Invalid price:", productToAdd.price);
+                        return;
+                    }
+
+                    const cartItemPayload = {
+                        user_id: currentUser.id,
+                        product_title: productToAdd.title,
+                        product_image: productToAdd.image || null,
+                        product_desc: productToAdd.description || null,
+                        product_price: productPriceNumeric,
+                        quantity: 1
+                    };
+
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/cart/add`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(cartItemPayload)
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            showMessage(data.message || "Product added to cart successfully!");
+                            updateNavCartCount();
+                        } else {
+                            console.error('Add to cart failed:', data.message);
+                            showMessage(data.message || "Failed to add product to cart.", "error");
+                        }
+                    } catch (error) {
+                        console.error('Network error:', error);
+                        showMessage("Network error: Could not connect to server.", "error");
+                    }
+                });
+            });
+
+            document.querySelectorAll('.view-detail-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const productId = event.currentTarget.dataset.productId;
+                    const selectedProduct = window.products.find(p => String(p.id) === String(productId));
+
+                    if (selectedProduct) {
+                        sessionStorage.setItem("selectedProduct", JSON.stringify(selectedProduct));
+                        window.location.href = "product.html";
+                    } else {
+                        showMessage("Product details not found.", "error");
+                    }
+                });
+            });
+        }
+
+        // --- Update User Name Display ---
+        function updateUserNameDisplay() {
+            if (currentUser && currentUser.username) {
+                userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
+            } else {
+                userNameContainer.innerHTML = "";
+            }
+        }
+
+        // --- Render navigation based on login state ---
+        async function renderNav() {
+            if (!navLinks) {
+                console.error("Navigation links element not found. Cannot render navigation.");
+                return;
+            }
+            navLinks.innerHTML = "";
+            let cartLength = 0;
+
+            if (currentUser && currentUser.id) {
+                // Fetch the actual cart length from backend for the current user
+                try {
+                    const response = await fetch(`${API_BASE_URL}/cart`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // If you implement JWT auth
+                        }
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.cartItems) {
+                        cartLength = data.cartItems.length;
+                    } else {
+                        console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+                        cartLength = 0; // Default to 0 on error
+                    }
+                } catch (error) {
+                    console.error('Network error getting cart count for navigation:', error);
+                    cartLength = 0; // Default to 0 on network error
+                }
+
+                navLinks.innerHTML = `
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile (${currentUser.username})</a></li>
+${currentUser.role === 'admin' ? '<li class="nav-item"><a class="nav-link" href="addproduct.html">Add Product</a></li>' : ''}
+
+                    <li class="nav-item ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative btn-sm rounded">
+                            Cart
+                            <span
+                                id="cart-count"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            >${cartLength}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <button id="logoutBtn" class="btn btn-outline-light btn-sm rounded">Logout</button>
+                    </li>`;
+            } else {
+                // Guest user
+                navLinks.innerHTML = `
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
+                    <li class="nav-item ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative btn-sm rounded">
+                            Cart
+                            <span
+                                id="cart-count"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            >${cartLength}</span>
+                        </a>
+                    </li>`;
+            }
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", () => {
+                    localStorage.removeItem("currentUser");
+                    currentUser = null;
+                    location.reload();
+                });
+            }
+        }
+
+        // Helper to update cart count badge visually in navbar
+        async function updateNavCartCount() {
+            let cartLength = 0;
+            if (currentUser && currentUser.id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/cart?user_id=${currentUser.id}`, { // Pass user_id for GET
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // If you implement JWT auth
+                        }
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.cartItems) {
+                        cartLength = data.cartItems.length;
+                    }
+                } catch (error) {
+                    console.error('Error fetching cart count:', error);
+                }
+            }
+            const cartCountEl = document.getElementById("cart-count");
+            if (cartCountEl) cartCountEl.textContent = cartLength;
+        }
+
+
+        // Mode toggle function (consistent with other pages)
+        // let classes = ["bg-white", "bg-dark"];
+        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
+        // let current = 0;
+        // function mode() {
+        //     const body = document.body;
+        //     body.classList.remove(...classes, "text-white", "text-dark");
+        //     current = (current + 1) % classes.length;
+        //     body.classList.add(classes[current], textColors[current]);
+        //     body.style.backgroundImage = "none";
+        // }
+
+        // Search box autocomplete
+        searchBox.addEventListener("input", () => {
+            const query = searchBox.value.trim().toLowerCase();
+            suggestionList.innerHTML = "";
+            if (query.length === 0) return;
+
+            const suggestions = products.filter(p => p.title.toLowerCase().includes(query));
+
+            suggestions.forEach(s => {
+                const li = document.createElement("li");
+                li.className = "list-group-item list-group-item-action rounded";
+                li.textContent = s.title;
+                li.style.cursor = "pointer";
+                li.addEventListener("click", () => {
+                    searchBox.value = s.title;
+                    suggestionList.innerHTML = "";
+                    const selectedProduct = products.find(p => p.title === s.title);
+                    if (selectedProduct) {
+                        sessionStorage.setItem("selectedProduct", JSON.stringify(selectedProduct));
+                        window.location.href = "product.html";
+                    } else {
+                        showMessage("Product details not found for selected suggestion.", "error");
+                    }
+                });
+                suggestionList.appendChild(li);
+            });
+        });
+
+        // Hide suggestions on outside click
+        document.addEventListener("click", (e) => {
+            if (e.target !== searchBox) {
+                suggestionList.innerHTML = "";
+            }
+        });
+
+
+        // --- Initialize page on DOMContentLoaded ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            updateUserNameDisplay();
+            await fetchProducts();
+            // Call renderNav *after* fetchProducts completes and products array is populated
+            // as renderNav depends on products for search, and updateNavCartCount is also async.
+            await renderNav();
+            // After renderNav, explicitly update the cart count with the logged-in user's ID
+            if (currentUser && currentUser.id) {
+                await updateNavCartCount();
+            }
+        });
+    </script>
+    <script src="global.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MyStore - Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="global.css" />
+</head>
+<style>.dark-mode .form-control::placeholder {
+      color: #ced4da;
+    }
+
+    .dark-mode .btn-outline-light {
+      color: #f8f9fa !important;
+      border-color: #f8f9fa !important;
+    }
+
+    .dark-mode .btn-outline-light:hover {
+      background-color: #f8f9fa !important;
+      color: #212529 !important;
+    }</style>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <a class="navbar-brand" href="index.html">Amazon clone</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center" id="nav-links"></ul>
+            <button onclick="mode()" class="btn btn-outline-light btn-sm rounded ms-3">mode</button>
+
+    </div>
+  </nav>
+
+  <!-- Profile Page -->
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card p-4 shadow-sm">
+          <!-- Profile Avatar -->
+          <div class="avatar-upload mb-3">
+            <div class="avatar-wrapper">
+              <img id="avatarPreview" class="avatar-img" src="https://via.placeholder.com/120" alt="Avatar" />
+            </div>
+            <input type="file" id="avatarInput" class="form-control" accept="image/*" />
+          </div>
+
+          <!-- Tabs -->
+          <ul class="nav nav-tabs mb-3" id="profileTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Profile Info</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab">Update Email</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab">Change Password</button>
+            </li>
+          </ul>
+
+          <!-- Tab Content -->
+          <div class="tab-content" id="profileTabContent">
+            <!-- Profile Info Tab -->
+            <div class="tab-pane fade show active" id="info" role="tabpanel">
+              <h5 class="mb-3">User Information</h5>
+              <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+              <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+            </div>
+
+            <!-- Update Email Tab -->
+            <div class="tab-pane fade" id="email" role="tabpanel">
+              <h5 class="mb-3">Update Email</h5>
+              <form id="updateEmailForm">
+                <div class="mb-3">
+                  <input type="email" id="newEmail" class="form-control" placeholder="Enter new email" required />
+                </div>
+                <button type="submit" class="btn btn-warning">Update Email</button>
+              </form>
+            </div>
+
+            <!-- Change Password Tab -->
+            <div class="tab-pane fade" id="password" role="tabpanel">
+              <h5 class="mb-3">Change Password</h5>
+              <form id="changePasswordForm">
+                <div class="mb-3">
+                  <input type="password" id="oldPassword" class="form-control" placeholder="Old Password" required />
+                </div>
+                <div class="mb-3">
+                  <input type="password" id="newPassword" class="form-control" placeholder="New Password" required minlength="6" />
+                </div>
+                <button type="submit" class="btn btn-danger">Change Password</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function updateNavLinks() {
+      const navLinks = document.getElementById("nav-links");
+      const userStr = localStorage.getItem("currentUser");
+      if (userStr) {
+        navLinks.innerHTML = `
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+          
+          <li class="nav-item ms-3">
+            <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+          </li>`;
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+          localStorage.removeItem("currentUser");
+          alert("Logged out successfully.");
+          window.location.href = "index.html";
+        });
+      } else {
+        navLinks.innerHTML = `
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>`;
+      }
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const badge = document.getElementById("cart-count");
+      if (badge) badge.textContent = cart.length;
+    }
+
+    function loadProfile() {
+      const currentUserStr = localStorage.getItem("currentUser");
+      if (!currentUserStr) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const user = JSON.parse(currentUserStr);
+      document.getElementById("profileUsername").textContent = user.username;
+      document.getElementById("profileEmail").textContent = user.email;
+
+      const avatarKey = `avatar_${user.id}`;
+      const avatar = localStorage.getItem(avatarKey);
+      if (avatar) {
+        document.getElementById("avatarPreview").src = avatar;
+      }
+
+      // Bind avatar upload
+      document.getElementById("avatarInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            document.getElementById("avatarPreview").src = reader.result;
+            localStorage.setItem(avatarKey, reader.result); // Save per-user avatar
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    document.getElementById("updateEmailForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = JSON.parse(localStorage.getItem("currentUser"));
+      const newEmail = document.getElementById("newEmail").value;
+    const res = await fetch("https://amazon-clone-fullstack.onrender.com/api/user/update-email", {
+  
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: user.id, newEmail })
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) {
+        user.email = newEmail;
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        loadProfile();
+      }
+    });
+
+    document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = JSON.parse(localStorage.getItem("currentUser"));
+      const oldPassword = document.getElementById("oldPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const res = await fetch("http://localhost:5000/api/user/update-password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: user.id, oldPassword, newPassword })
+      });
+      const data = await res.json();
+      alert(data.message);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateNavLinks();
+      updateCartCount();
+      loadProfile();
+    });
+  </script>
+  <script src="global.js"></script>
+</body>
+</html>

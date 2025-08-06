@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="globalstyle.css">
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --error-color: #dc3545;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      /* background-image: url('https://images.pexels.com/photos/325153/pexels-photo-325153.jpeg?auto=compress&cs=tinysrgb&w=1600'); */
+      background-size: 700px;
+      animation: moveGradient 15s ease-in-out infinite;
+      padding: 20px;
+      /* Ensure body is always white for consistency */
+      background-color: #fff !important;
+      color: #000 !important;
+    }
+
+    @keyframes moveGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .contact-container {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 120px;
+    }
+
+    button[type="submit"] {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #00b315;
+    }
+
+    #status {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 500;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    #status.success {
+      color: var(--success-color);
+      background-color: #e6ffe6;
+      border: 1px solid var(--success-color);
+    }
+
+    #status.error {
+      color: var(--error-color);
+      background-color: #ffe6e6;
+      border: 1px solid var(--error-color);
+    }
+
+    @media (max-width: 600px) {
+      .contact-container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="contact-container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+      <a class="navbar-brand" href="index.html"><button>Home</button></a>
+      <div id="user-name-container" class="d-flex align-items-center text-center ms-3 text-uppercase "
+        style="color: #fff; font-weight: bold;">
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
+        </ul>
+      </div>
+    </nav>
+    <h1>Contact Us</h1>
+    <form id="contactForm" enctype="multipart/form-data">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required readonly>
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required readonly>
+
+      <label for="subject">Subject:</label>
+      <input type="text" id="subject" name="subject" placeholder="Subject" required>
+
+      <label for="message">Message:</label>
+      <textarea id="message" name="message" placeholder="Your message here..." required></textarea>
+
+      <label for="file">Attachment (optional):</label>
+      <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,image/*">
+
+      <button type="submit">Send Message</button>
+      <div id="status"></div>
+    </form>
+  </div>
+  <script>
+    const API_BASE_URL = 'http://localhost:5000'; // Backend base URL
+
+    // DOM elements
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const contactForm = document.getElementById("contactForm");
+    const formStatusDiv = document.getElementById("status");
+
+    // Elements for navbar consistency
+    const cartCountEl = document.getElementById("cart-count");
+    const navLinks = document.getElementById("nav-links");
+    const userNameContainer = document.getElementById("user-name-container");
+
+    let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+
+    // --- Helper function to display messages ---
+    function showMessage(message, type = 'success', targetElement = formStatusDiv) {
+      if (!targetElement) {
+        console.error("Target message element not found.");
+        console.log(`Message (${type}): ${message}`);
+        return;
+      }
+
+      targetElement.textContent = message;
+      targetElement.className = type;
+      targetElement.style.display = 'block';
+
+      setTimeout(() => {
+        targetElement.style.display = 'none';
+        targetElement.textContent = ''; // Clear text
+        targetElement.classList.remove('success', 'error'); // Remove status classes
+      }, 3000); // Hide after 3 seconds
+    }
+
+    // --- Function to redirect to login ---
+    function redirectToLogin() {
+      showMessage("⚠️ Please login to use the contact form.", "error", formStatusDiv);
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500); // Redirect after message is displayed for a moment
+    }
+
+    // --- Update User Name Display ---
+    function updateUserNameDisplay() {
+      if (currentUser && currentUser.username) {
+        userNameContainer.innerHTML = `Hello, ${currentUser.username}`;
+      } else {
+        userNameContainer.innerHTML = "";
+      }
+    }
+
+    // --- Helper to update cart count badge visually in navbar ---
+    async function updateNavCartCount() {
+      let cartLength = 0;
+      if (currentUser && currentUser.id) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (response.ok && data.cartItems) {
+            cartLength = data.cartItems.length;
+          } else {
+            console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+            cartLength = 0;
+          }
+        } catch (error) {
+          console.error('Network error getting cart count for navigation:', error);
+          cartLength = 0;
+        }
+      }
+      if (cartCountEl) cartCountEl.textContent = cartLength;
+    }
+
+    // --- Render navigation based on login state ---
+    async function renderNav() {
+      if (!navLinks) {
+        console.error("Navigation links element not found. Cannot render navigation.");
+        return;
+      }
+      navLinks.innerHTML = "";
+      let cartLength = 0;
+
+      if (currentUser && currentUser.id) {
+        // Fetch cart length if user is logged in
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await response.json();
+          if (response.ok && data.cartItems) {
+            cartLength = data.cartItems.length;
+          } else {
+            console.error('Failed to get cart count for navigation:', data.message || response.statusText);
+            cartLength = 0;
+          }
+        } catch (error) {
+          console.error('Network error getting cart count for navigation:', error);
+          cartLength = 0;
+        }
+
+
+      } else {
+        navLinks.innerHTML = `
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>
+                    <li class="nav-item ms-3">
+                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
+                            Cart
+                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                ${cartLength}
+                            </span>
+                        </a>
+                    </li>`; // Removed mode-toggle button
+      }
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("currentUser");
+          currentUser = null;
+          location.reload();
+        });
+      }
+    }
+
+    // --- Initial Check and Form Setup ---
+    if (!currentUser || !nameInput || !emailInput || !contactForm) {
+      redirectToLogin();
+    } else {
+      nameInput.value = currentUser.username || "";
+      emailInput.value = currentUser.email || "";
+
+      contactForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // Basic client-side validation
+        if (!contactForm.checkValidity()) {
+          contactForm.classList.add("was-validated");
+          return;
+        }
+
+        const formData = new FormData(contactForm);
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/send_mail`, {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            showMessage(data.message || "Message sent successfully!", "success", formStatusDiv);
+            contactForm.reset();
+            contactForm.classList.remove("was-validated");
+
+            // Re-populate fields if user is still logged in
+            if (currentUser) {
+              nameInput.value = currentUser.username || "";
+              emailInput.value = currentUser.email || "";
+            }
+
+            // --- REDIRECTION ENABLED HERE ---
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 2000); // Redirect after 2 seconds
+          } else {
+            showMessage(data.message || "Failed to send message.", "error", formStatusDiv);
+          }
+        } catch (err) {
+          console.error("Send Error:", err);
+          showMessage("Network error. Please try again.", "error", formStatusDiv);
+        }
+      });
+    }
+
+    // --- Initialize page on DOMContentLoaded ---
+    document.addEventListener('DOMContentLoaded', async () => {
+      // No theme preference to apply, just ensure standard white theme
+      document.body.classList.add('bg-white', 'text-dark');
+
+      updateUserNameDisplay();
+      await updateNavCartCount();
+      await renderNav();
+    });
+
+  </script>
+  <script src="global.js"></script>
+</body>
+
+</html>
