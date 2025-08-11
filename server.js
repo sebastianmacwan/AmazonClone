@@ -23,11 +23,12 @@ const upload = multer({ storage });
 
 // Initialize Express app
 const app = express();
+app.use(express.json({ limit: "5mb" })); // ⬅ Important for base64 image size
 
 // --- Middleware Configuration ---
 
 app.use(cors({
-  origin: 'http://localhost:5000', // frontend origin
+  origin: 'https://amazon-mongo.netlify.app', // frontend origin
   credentials: true
 }));
 // Parse incoming request bodies in JSON format
@@ -35,6 +36,10 @@ app.use(bodyParser.json());
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Serve static files from the 'public' directory
+// app.use(express.static(path.join(__dirname, "public")));
 
 // --- Nodemailer Transporter Configuration ---
 // This transporter will be used for sending all emails (contact form, password reset)
@@ -112,6 +117,7 @@ app.post("/api/login", async (req, res) => {
         username: user.username,
         email: user.email,
          role: user.role  ,
+         avatar: user.avatar // ✅ include avatar URL
       },
     });
   } catch (err) {
@@ -336,6 +342,31 @@ app.post("/api/send_mail", upload.single("file"), async (req, res) => { // Chang
 // which is common for Single Page Applications (SPAs).
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+//profile update route
+app.post('/api/update-avatar', async (req, res) => {
+  const { userId, avatarUrl } = req.body;
+
+  if (!userId || !avatarUrl) {
+    return res.status(400).json({ success: false, error: "Missing userId or avatarUrl" });
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatar: avatarUrl },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error("Error updating avatar:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
 });
 
 // --- Global Error Handling Middleware ---

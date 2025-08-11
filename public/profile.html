@@ -48,6 +48,11 @@
             </div>
             <input type="file" id="avatarInput" class="form-control" accept="image/*" />
           </div>
+<div class="mt-3">
+  <label for="avatarUrlInput" class="form-label">Or use Avatar Image URL</label>
+  <input type="text" id="avatarUrlInput" class="form-control" placeholder="https://example.com/avatar.jpg" />
+  <button id="setAvatarUrlBtn" class="btn btn-secondary mt-2">Set Avatar from URL</button>
+</div>
 
           <!-- Tabs -->
           <ul class="nav nav-tabs mb-3" id="profileTab" role="tablist">
@@ -105,106 +110,285 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    function updateNavLinks() {
-      const navLinks = document.getElementById("nav-links");
-      const userStr = localStorage.getItem("currentUser");
-      if (userStr) {
-        navLinks.innerHTML = `
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+//     function updateNavLinks() {
+//       const navLinks = document.getElementById("nav-links");
+//       const userStr = localStorage.getItem("currentUser");
+//       if (userStr) {
+//         navLinks.innerHTML = `
+//           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+//           <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
           
-          <li class="nav-item ms-3">
-            <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
-          </li>`;
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-          localStorage.removeItem("currentUser");
-          alert("Logged out successfully.");
-          window.location.href = "index.html";
-        });
-      } else {
-        navLinks.innerHTML = `
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>`;
-      }
-    }
+//           <li class="nav-item ms-3">
+//             <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+//           </li>`;
+//         document.getElementById("logoutBtn").addEventListener("click", () => {
+//           localStorage.removeItem("currentUser");
+//           alert("Logged out successfully.");
+//           window.location.href = "index.html";
+//         });
+//       } else {
+//         navLinks.innerHTML = `
+//           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+//           <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+//           <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>`;
+//       }
+//     }
 
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const badge = document.getElementById("cart-count");
-      if (badge) badge.textContent = cart.length;
-    }
+//     function updateCartCount() {
+//       const cart = JSON.parse(localStorage.getItem("cart")) || [];
+//       const badge = document.getElementById("cart-count");
+//       if (badge) badge.textContent = cart.length;
+//     }
 
-    function loadProfile() {
-      const currentUserStr = localStorage.getItem("currentUser");
-      if (!currentUserStr) {
-        alert("Please login first.");
-        window.location.href = "login.html";
-        return;
-      }
+//     // function loadProfile() {
+//     //   const currentUserStr = localStorage.getItem("currentUser");
+//     //   if (!currentUserStr) {
+//     //     alert("Please login first.");
+//     //     window.location.href = "login.html";
+//     //     return;
+//     //   }
 
-      const user = JSON.parse(currentUserStr);
-      document.getElementById("profileUsername").textContent = user.username;
-      document.getElementById("profileEmail").textContent = user.email;
+//     //   const user = JSON.parse(currentUserStr);
+//     //   document.getElementById("profileUsername").textContent = user.username;
+//     //   document.getElementById("profileEmail").textContent = user.email;
 
-      const avatarKey = `avatar_${user.id}`;
-      const avatar = localStorage.getItem(avatarKey);
-      if (avatar) {
-        document.getElementById("avatarPreview").src = avatar;
-      }
+//     //   const avatarKey = `avatar_${user.id}`;
+//     //   const avatar = localStorage.getItem(avatarKey);
+//     //   if (avatar) {
+//     //     document.getElementById("avatarPreview").src = avatar;
+//     //   }
 
-      // Bind avatar upload
-      document.getElementById("avatarInput").addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            document.getElementById("avatarPreview").src = reader.result;
-            localStorage.setItem(avatarKey, reader.result); // Save per-user avatar
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
+//     //   // Bind avatar upload
+//     //   document.getElementById("avatarInput").addEventListener("change", (e) => {
+//     //     const file = e.target.files[0];
+//     //     if (file && file.type.startsWith("image/")) {
+//     //       const reader = new FileReader();
+//     //       reader.onload = () => {
+//     //         document.getElementById("avatarPreview").src = reader.result;
+//     //         localStorage.setItem(avatarKey, reader.result); // Save per-user avatar
+//     //       };
+//     //       reader.readAsDataURL(file);
+//     //     }
+//     //   });
+//     function loadProfile() {
+//   const currentUserStr = localStorage.getItem("currentUser");
+//   if (!currentUserStr) {
+//     alert("Please login first.");
+//     window.location.href = "login.html";
+//     return;
+//   }
 
-    document.getElementById("updateEmailForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const user = JSON.parse(localStorage.getItem("currentUser"));
-      const newEmail = document.getElementById("newEmail").value;
-    const res = await fetch("https://amazon-clone-fullstack.onrender.com/api/user/update-email", {
+//   const user = JSON.parse(currentUserStr);
+//   document.getElementById("profileUsername").textContent = user.username;
+//   document.getElementById("profileEmail").textContent = user.email;
+
+//   const avatarKey = `avatar_${user.id}`;
+//   const avatar = localStorage.getItem(avatarKey);
+//   if (avatar) {
+//     document.getElementById("avatarPreview").src = avatar;
+//   }
+
+//   // Handle file upload
+//   document.getElementById("avatarInput").addEventListener("change", (e) => {
+//     const file = e.target.files[0];
+//     if (file && file.type.startsWith("image/")) {
+//       const reader = new FileReader();
+//       reader.onload = () => {
+//         document.getElementById("avatarPreview").src = reader.result;
+//         localStorage.setItem(avatarKey, reader.result);
+//       };
+//       reader.readAsDataURL(file);
+//     }
+//   });
+
+//   // Handle URL input
+//   document.getElementById("setAvatarUrlBtn").addEventListener("click", () => {
+//     const url = document.getElementById("avatarUrlInput").value.trim();
+//     if (url && (url.startsWith("http://") || url.startsWith("https://"))) {
+//       document.getElementById("avatarPreview").src = url;
+//       localStorage.setItem(avatarKey, url);
+//     } else {
+//       alert("Please enter a valid image URL (http/https).");
+//     }
+//   });
+// }
+
+    
+
+//     document.getElementById("updateEmailForm").addEventListener("submit", async (e) => {
+//       e.preventDefault();
+//       const user = JSON.parse(localStorage.getItem("currentUser"));
+//       const newEmail = document.getElementById("newEmail").value;
+//     const res = await fetch("http://localhost:5000/api/user/update-email", {
   
-        method: "PUT",
+//         method: "PUT",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ id: user.id, newEmail })
+//       });
+//       const data = await res.json();
+//       alert(data.message);
+//       if (res.ok) {
+//         user.email = newEmail;
+//         localStorage.setItem("currentUser", JSON.stringify(user));
+//         loadProfile();
+//       }
+//     });
+
+//     document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+//       e.preventDefault();
+//       const user = JSON.parse(localStorage.getItem("currentUser"));
+//       const oldPassword = document.getElementById("oldPassword").value;
+//       const newPassword = document.getElementById("newPassword").value;
+//       const res = await fetch("http://localhost:5000/api/user/update-password", {
+//         method: "PUT",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ id: user.id, oldPassword, newPassword })
+//       });
+//       const data = await res.json();
+//       alert(data.message);
+//     });
+
+//     document.addEventListener("DOMContentLoaded", () => {
+//       updateNavLinks();
+//       updateCartCount();
+//       loadProfile();
+//     });
+function updateNavLinks() {
+    const navLinks = document.getElementById("nav-links");
+    const userStr = localStorage.getItem("currentUser");
+    if (userStr) {
+      navLinks.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+        <li class="nav-item ms-3">
+          <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+        </li>`;
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("currentUser");
+        alert("Logged out successfully.");
+        window.location.href = "index.html";
+      });
+    } else {
+      navLinks.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="signup.html">Signup</a></li>`;
+    }
+  }
+
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const badge = document.getElementById("cart-count");
+    if (badge) badge.textContent = cart.length;
+  }
+
+  // ✅ Sync avatar with backend
+  async function saveAvatarToServer(userId, avatarUrl) {
+    try {
+      const res = await fetch("http://localhost:5000/api/update-avatar", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: user.id, newEmail })
+        body: JSON.stringify({ userId, avatarUrl })
       });
       const data = await res.json();
-      alert(data.message);
-      if (res.ok) {
-        user.email = newEmail;
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        loadProfile();
+      if (!data.success) {
+        console.warn("Failed to sync avatar:", data.error);
+      }
+    } catch (err) {
+      console.error("Error syncing avatar to backend:", err);
+    }
+  }
+
+  function loadProfile() {
+    const currentUserStr = localStorage.getItem("currentUser");
+    if (!currentUserStr) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const user = JSON.parse(currentUserStr);
+    document.getElementById("profileUsername").textContent = user.username;
+    document.getElementById("profileEmail").textContent = user.email;
+
+    const avatarKey = `avatar_${user.id}`;
+    const avatar = localStorage.getItem(avatarKey);
+    if (avatar) {
+      document.getElementById("avatarPreview").src = avatar;
+    }
+
+    // 📂 File upload handler
+    document.getElementById("avatarInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const avatarUrl = reader.result;
+          document.getElementById("avatarPreview").src = avatarUrl;
+          localStorage.setItem(avatarKey, avatarUrl);
+          saveAvatarToServer(user.id, avatarUrl); // ✅ Sync to backend
+        };
+        reader.readAsDataURL(file);
       }
     });
 
-    document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const user = JSON.parse(localStorage.getItem("currentUser"));
-      const oldPassword = document.getElementById("oldPassword").value;
-      const newPassword = document.getElementById("newPassword").value;
-      const res = await fetch("http://localhost:5000/api/user/update-password", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: user.id, oldPassword, newPassword })
-      });
-      const data = await res.json();
-      alert(data.message);
+    // 🌐 Avatar URL input handler
+    document.getElementById("setAvatarUrlBtn").addEventListener("click", () => {
+      const url = document.getElementById("avatarUrlInput").value.trim();
+      if (url && (url.startsWith("http://") || url.startsWith("https://"))) {
+        document.getElementById("avatarPreview").src = url;
+        localStorage.setItem(avatarKey, url);
+        saveAvatarToServer(user.id, url); // ✅ Sync to backend
+      } else {
+        alert("Please enter a valid image URL (http/https).");
+      }
     });
+  }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      updateNavLinks();
-      updateCartCount();
-      loadProfile();
+  // 📨 Update email
+  document.getElementById("updateEmailForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const newEmail = document.getElementById("newEmail").value;
+    const res = await fetch("http://localhost:5000/api/user/update-email", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: user.id, newEmail })
     });
+    const data = await res.json();
+    alert(data.message);
+    if (res.ok) {
+      user.email = newEmail;
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      loadProfile();
+    }
+  });
+
+  // 🔒 Change password
+  document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const oldPassword = document.getElementById("oldPassword").value;
+    const newPassword = document.getElementById("newPassword").value;
+    const res = await fetch("http://localhost:5000/api/user/update-password", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: user.id, oldPassword, newPassword })
+    });
+    const data = await res.json();
+    alert(data.message);
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateNavLinks();
+    updateCartCount();
+    loadProfile();
+  });
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if (currentUser && currentUser.avatar) {
+    const avatarImg = document.getElementById("avatarPreview");
+    avatarImg.src = currentUser.avatar;
+  }
   </script>
   <script src="global.js"></script>
 </body>

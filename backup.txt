@@ -1,826 +1,120 @@
+https://images.surferseo.art/72e25adf-6e8f-4788-b287-8c589668ef96.jpeg
+
+
+
+https://images.surferseo.art/37216291-8bac-4f7c-a7b8-d0c74cad8bdd.webp
+
+
+addproduct.html:
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Product Details - Amazon Clone</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Custom CSS for Inter font and general styling -->
-     <!-- <link rel="stylesheet" href="global.css"> -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh; /* Ensure body takes full viewport height */
-            display: flex;
-            flex-direction: column;
-        }
-        .navbar, .footer {
-            flex-shrink: 0; /* Prevent navbar and footer from shrinking */
-        }
-        .container {
-            flex-grow: 1; /* Allow content area to grow */
-        }
-        .rounded {
-            border-radius: 0.5rem !important; /* Tailwind-like rounded corners */
-        }
-        .btn {
-            border-radius: 0.375rem; /* Slightly rounded buttons */
-        }
-        /* Message box styling */
-        #messageBox {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050; /* Above Bootstrap modals */
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: none; /* Hidden by default */
-            color: #fff;
-            font-weight: bold;
-        }
-        #messageBox.success {
-            background-color: #28a745; /* Green for success */
-        }
-        #messageBox.error {
-            background-color: #dc3545; /* Red for error */
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Add Product (Admin)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <!-- Navbar -->
-    <!-- Changed bg-dark to bg-primary for consistency with index.html -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
-        <a class="navbar-brand" href="index.html">Amazon Clone</a>
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
-                <!-- Login, Signup, and Cart links inserted dynamically by JS -->
-            </ul>
-        </div>
-    </nav>
+<body class="bg-light text-dark">
 
-    <!-- Product Details -->
-    <div class="container my-4">
-        <div id="productDetails" class="row">
-            <!-- Product details will be inserted here -->
-        </div>
+  <div class="container mt-5">
+    <h2 class="mb-4">Add New Product</h2>
+
+    <form id="productForm" class="border p-4 rounded bg-white shadow-sm">
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Image URL</label>
+        <input type="text" name="image" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="3"></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Price</label>
+        <input type="number" name="price" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Category</label>
+        <input type="text" name="category" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">Add Product</button>
+    </form>
+  </div>
+
+  <!-- ✅ Toast Container -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="liveToast" class="toast text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Success</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
     </div>
+  </div>
 
-    <!-- Message Box for alerts -->
-    <div id="messageBox"></div>
+  <!-- ✅ Bootstrap Bundle (includes Toast JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <footer class="bg-dark text-white py-4 mt-auto">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>About Amazon Clone</h5>
-                    <p>This is a simple Amazon clone built with Bootstrap and JavaScript.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="index.html" class="text-white">Home</a></li>
-                        <li><a href="cart.html" class="text-white">Cart</a></li>
-                        <li><a href="profile.html" class="text-white">Profile</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <h5>Contact</h5>
-                    <p>Email: support@amazonclone.com</p>
-                    <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
-                </div>
-            </div>
-        </div>
-    </footer>
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    // Redirect if not admin
+    if (!currentUser || currentUser.role !== "admin") {
+      alert("Access denied: Admins only");
+      window.location.href = "index.html";
+    }
 
-    <script>
-        // Backend API base URL
-          const API_BASE_URL = 'http://localhost:5000'; // Adjust if your backend runs on a different port/host
+    const toastMsg = document.getElementById('toastMsg');
+    const toastEl = document.getElementById('liveToast');
+    const toast = new bootstrap.Toast(toastEl);
 
-        // DOM elements
-        const productDetailsEl = document.getElementById("productDetails");
-        const navLinks = document.getElementById("nav-links");
-        const messageBox = document.getElementById("messageBox");
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
 
-        // Global variables for user and product state
-        let product = JSON.parse(sessionStorage.getItem("selectedProduct"));
-        let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-        // The 'cart' variable here is mainly for the renderNav to update.
-        // The source of truth for cart items is the backend.
-        let cart = []; // No longer initialized from localStorage directly here, will fetch from backend
+      const data = {
+        title: form.title.value,
+        image: form.image.value,
+        description: form.description.value,
+        price: form.price.value,
+        category: form.category.value,
+        role: currentUser.role
+      };
 
-        // --- Helper function to display messages instead of alert() ---
-        function showMessage(message, type = 'success') {
-            messageBox.textContent = message;
-            messageBox.className = ''; // Clear previous classes
-            messageBox.classList.add(type);
-            messageBox.style.display = 'block';
+      try {
+        const res = await fetch('/api/admin/add-product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
 
-            setTimeout(() => {
-                messageBox.style.display = 'none';
-            }, 3000); // Hide after 3 seconds
-        }
+        const result = await res.json();
 
-        // --- Render Product Details ---
-        if (!product) {
-            productDetailsEl.innerHTML = `
-                <div class="col-12 text-center my-5">
-                    <h3 class="text-danger">No product selected.</h3>
-                    <p class="mt-3">Please go back to the home page to select a product.</p>
-                    <a href="index.html" class="btn btn-primary mt-3 rounded">Back to Home</a>
-                </div>
-            `;
+        if (res.ok) {
+          form.reset();
+          toastMsg.textContent = "✅ Product added successfully!";
+          toastEl.classList.remove('bg-danger');
+          toastEl.classList.add('bg-success');
+          toast.show();
+
+          // Navigate after delay
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 2000);
         } else {
-            // Updated to use product.image and product.description from DB schema
-            productDetailsEl.innerHTML = `
-                <div class="col-md-6 mb-4 mb-md-0">
-                    <img src="${product.image || 'https://placehold.co/400x400?text=No+Image'}" alt="${product.title}" class="img-fluid rounded shadow-sm" />
-                </div>
-                <div class="col-md-6">
-                    <h2 class="fw-bold">${product.title}</h2>
-                    <h4 class="text-danger mb-3">${typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : product.price}</h4>
-                    <p class="text-muted">${product.description || 'No description available for this product.'}</p>
-                    <div class="d-flex align-items-center mt-4">
-                        <button id="addToCartBtn" class="btn btn-primary btn-lg rounded me-2">Add to Cart</button>
-                        <a href="cart.html" class="btn btn-outline-secondary btn-lg rounded">View Cart</a>
-                    </div>
-                </div>
-            `;
+          toastMsg.textContent = result.message || "Failed to add product.";
+          toastEl.classList.remove('bg-success');
+          toastEl.classList.add('bg-danger');
+          toast.show();
         }
-
-        // --- Add to Cart functionality ---
-        if (product) {
-            document.getElementById("addToCartBtn").addEventListener("click", async () => {
-                if (!currentUser || !currentUser.id) {
-                    showMessage("Please login to add items to cart.", "error");
-                    setTimeout(() => {
-                        window.location.href = "login.html";
-                    }, 1500); // Redirect after message is shown
-                    return;
-                }
-
-                // Prepare product data for the backend
-                const productPriceNumeric = parseFloat(String(product.price).replace(/[^0-9.-]+/g, ""));
-                if (isNaN(productPriceNumeric)) {
-                    showMessage("Invalid product price detected. Cannot add to cart.", "error");
-                    console.error("Product price is not a valid number:", product.price);
-                    return;
-                }
-
-                const cartItemPayload = {
-                    user_id: currentUser.id,
-                    product_title: product.title,
-                    product_image: product.image || null, // Use product.image
-                    product_desc: product.description || null,   // Use product.description
-                    product_price: productPriceNumeric,
-                    quantity: 1 // Always add 1 at a time from this page
-                };
-
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/cart/add`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // Add Authorization header here if your backend uses it (e.g., JWT)
-                            // 'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        body: JSON.stringify(cartItemPayload)
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) { // Check if status is 2xx
-                        showMessage(data.message || "Product added to cart successfully!");
-                        updateNavCartCount(); // Update the cart count in navbar
-                    } else {
-                        // Handle server-side errors (e.g., 400, 500)
-                        console.error('Failed to add to cart:', data.message || response.statusText);
-                        showMessage(data.message || "Failed to add product to cart. Please try again.", "error");
-                    }
-                } catch (error) {
-                    // Handle network errors (e.g., server unreachable)
-                    console.error('Network error during add to cart:', error);
-                    showMessage("Network error: Could not connect to the server.", "error");
-                }
-            });
-        }
-
-        // --- Helper function to update cart count badge visually in navbar ---
-        async function updateNavCartCount() {
-            let cartLength = 0;
-            if (currentUser && currentUser.id) {
-                try {
-                    // Fetch the user's cart from the backend to get the latest count
-                    // CRITICAL: Pass user_id as a query parameter for GET request
-                    const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // 'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.cartItems) {
-                        cartLength = data.cartItems.length; // Use the actual length from the backend
-                    } else {
-                        console.error('Failed to fetch updated cart for count:', data.message || response.statusText);
-                        cartLength = 0; // Default to 0 if fetch fails
-                    }
-                } catch (error) {
-                    console.error('Error fetching cart count for navigation:', error);
-                    cartLength = 0; // Default to 0 on network error
-                }
-            }
-            const cartCountEl = document.getElementById("cart-count");
-            if (cartCountEl) cartCountEl.textContent = cartLength;
-        }
-
-
-        // --- Render navigation based on login state ---
-        async function renderNav() {
-            if (!navLinks) {
-                console.error("Navigation links element not found. Cannot render navigation.");
-                return;
-            }
-            navLinks.innerHTML = "";
-            let cartLength = 0; // Initialize cartLength here
-
-            if (currentUser && currentUser.id) {
-                // Fetch the actual cart length from backend for the current user
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // If you implement JWT auth
-                        }
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.cartItems) {
-                        cartLength = data.cartItems.length;
-                    } else {
-                        console.error('Failed to get cart count for navigation:', data.message || response.statusText);
-                        cartLength = 0; // Default to 0 on error
-                    }
-                } catch (error) {
-                    console.error('Network error getting cart count for navigation:', error);
-                    cartLength = 0; // Default to 0 on network error
-                }
-
-
-                navLinks.innerHTML = `
-                    <li class="nav-item">
-                        <a class="nav-link" href="profile.html">Profile (${currentUser.username})</a>
-                    </li>
-                    <li class="nav-item position-relative ms-3">
-                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
-                            Cart
-                            <span
-                                id="cart-count"
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            >${cartLength}</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ms-3">
-                        <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
-                    </li>`;
-            } else {
-                // Guest user
-                navLinks.innerHTML = `
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="signup.html">Signup</a>
-                    </li>
-                    <li class="nav-item position-relative ms-3">
-                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
-                            Cart
-                            <span
-                                id="cart-count"
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            >${cartLength}</span>
-                        </a>
-                    </li>`;
-            }
-
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-                logoutBtn.addEventListener("click", () => {
-                    localStorage.removeItem("currentUser");
-                    currentUser = null;
-                    location.reload();
-                });
-            }
-        }
-
-
-        // // Mode toggle function
-        // let classes = ["bg-white", "bg-info", "bg-success", "bg-dark"];
-        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
-        // let current = 0;
-        // function mode() {
-        //     const body = document.body;
-        //     body.classList.remove(...classes, "text-white", "text-dark");
-        //     current = (current + 1) % classes.length;
-        //     body.classList.add(classes[current], textColors[current]);
-        //     body.style.backgroundImage = "none"; // Remove background image if any
-        // }
-
-        // Initial render logic
-        document.addEventListener('DOMContentLoaded', async () => {
-            await renderNav(); // Render navigation and fetch cart count on load
-        });
-    </script>
-    <script src="global.js"></script>
+      } catch (err) {
+        toastMsg.textContent = "Error adding product.";
+        toastEl.classList.remove('bg-success');
+        toastEl.classList.add('bg-danger');
+        toast.show();
+      }
+    });
+  </script>
 </body>
-</html>
-
-#cart.html
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyStore - Cart</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="global.css">
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            /* Ensure body takes full viewport height */
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar,
-        .footer {
-            flex-shrink: 0;
-            /* Prevent navbar and footer from shrinking */
-        }
-
-        .container {
-            flex-grow: 1;
-            /* Allow content area to grow */
-        }
-
-        .rounded {
-            border-radius: 0.5rem !important;
-            /* Tailwind-like rounded corners */
-        }
-
-        .btn {
-            border-radius: 0.375rem;
-            /* Slightly rounded buttons */
-        }
-
-        /* Message box styling (replicated from product.html for consistency) */
-        #messageBox {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050;
-            /* Above Bootstrap modals */
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: none;
-            /* Hidden by default */
-            color: #fff;
-            font-weight: bold;
-        }
-
-        #messageBox.success {
-            background-color: #28a745;
-            /* Green for success */
-        }
-
-        #messageBox.error {
-            background-color: #dc3545;
-            /* Red for error */
-        }
-    </style>
-    <!-- global.css if you have specific global styles -->
-    <!-- <link rel="stylesheet" href="global.css"> -->
-</head>
-
-<body class="bg-white text-dark">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
-        <a class="navbar-brand" href="index.html">Amazon clone</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center" id="nav-links">
-                <!-- Links will be injected by JS -->
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Main Container -->
-    <div class="container my-4">
-        <h2 class="mb-4">Shopping Cart</h2>
-        <!-- Message box for alerts -->
-        <div id="messageBox"></div>
-
-        <div id="loadingMessage" class="alert alert-info text-center" style="display: none;">
-            Loading cart...
-        </div>
-        <div id="loginPrompt" class="alert alert-warning text-center" style="display: none;">
-            Please <a href="login.html">log in</a> to view your cart.
-        </div>
-        <div id="cartContainer" style="display: none;">
-            <table class="table table-striped table-hover" id="cartTable">
-                <thead>
-                    <tr>
-                        <th scope="col">Product</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Total</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Cart items will be dynamically inserted here -->
-                </tbody>
-            </table>
-            <div class="text-end mt-3">
-                <h4>Subtotal: <span id="cartSubtotal">$0.00</span></h4>
-                <button id="checkoutBtn" class="btn btn-success btn-lg rounded">Proceed to Checkout</button>
-            </div>
-        </div>
-        <div id="emptyMessage" class="alert alert-info text-center" style="display: none;">
-            Your cart is empty.
-        </div>
-        <a href="index.html" class="btn btn-secondary mt-3 rounded">Continue Shopping</a>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-auto">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>About MyStore</h5>
-                    <p>This is a simple store built with Bootstrap and JavaScript.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="index.html" class="text-white">Home</a></li>
-                        <li><a href="cart.html" class="text-white">Cart</a></li>
-                        <li><a href="profile.html" class="text-white">Profile</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <a href="contact.html" class="btn btn-outline-light btn-sm rounded">
-                        <h5 class="mb-0 text-white">Contact</h5>
-                    </a>
-                    <p>Email: support@amazonclone.com</p>
-                    <button onclick="mode()" class="btn btn-outline-light btn-sm rounded">mode</button>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        // Backend API base URL
-          const API_BASE_URL = 'http://localhost:5000'; // Adjust if your backend runs on a different port/host
-
-        // DOM elements
-        const cartContainerEl = document.getElementById("cartContainer");
-        const cartTableBody = document.querySelector("#cartTable tbody");
-        const emptyMessageEl = document.getElementById("emptyMessage");
-        const loginPromptEl = document.getElementById("loginPrompt");
-        const loadingMessageEl = document.getElementById("loadingMessage");
-        const cartSubtotalEl = document.getElementById("cartSubtotal");
-        const navLinks = document.getElementById("nav-links");
-        const messageBox = document.getElementById("messageBox");
-
-        // Global variables for user and product state
-        let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-        let userCart = []; // This will store the fetched cart items
-
-        // --- Helper function to display messages instead of alert() ---
-        function showMessage(message, type = 'success') {
-            messageBox.textContent = message;
-            messageBox.className = ''; // Clear previous classes
-            messageBox.classList.add(type);
-            messageBox.style.display = 'block';
-
-            setTimeout(() => {
-                messageBox.style.display = 'none';
-            }, 3000); // Hide after 3 seconds
-        }
-
-        // --- Fetch Cart Items from Backend ---
-        async function fetchCartItems() {
-            loadingMessageEl.style.display = 'block'; // Show loading message
-            cartContainerEl.style.display = 'none';
-            emptyMessageEl.style.display = 'none';
-            loginPromptEl.style.display = 'none';
-
-            if (!currentUser || !currentUser.id) {
-                loadingMessageEl.style.display = 'none';
-                loginPromptEl.style.display = 'block';
-                cartTableBody.innerHTML = ''; // Clear any previous items
-                updateCartCount(0); // Set cart count to 0 if not logged in
-                return;
-            }
-
-            try {
-                // IMPORTANT FIX: Pass user_id as a query parameter for GET request
-                const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Add Authorization header here if your backend uses it (e.g., JWT)
-                        // 'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.cartItems) {
-                    userCart = data.cartItems; // Update global userCart with fetched data
-                    displayCart(userCart); // Render the cart items
-                } else {
-                    console.error('Failed to fetch cart items:', data.message || response.statusText);
-                    showMessage(data.message || 'Failed to load cart. Please try again.', 'error');
-                    userCart = []; // Clear cart on error
-                    displayCart(userCart); // Display empty cart state
-                }
-            } catch (error) {
-                console.error('Network error fetching cart items:', error);
-                showMessage('Network error: Could not connect to the server to load cart.', 'error');
-                userCart = []; // Clear cart on network error
-                displayCart(userCart); // Display empty cart state
-            } finally {
-                loadingMessageEl.style.display = 'none'; // Hide loading message
-            }
-        }
-
-        // --- Display Cart Items in Table ---
-        function displayCart(cartItems) {
-            cartTableBody.innerHTML = ''; // Clear existing rows
-            let subtotal = 0;
-
-            if (cartItems.length === 0) {
-                cartContainerEl.style.display = 'none';
-                emptyMessageEl.style.display = 'block';
-                updateCartCount(0);
-                return;
-            }
-
-            cartItems.forEach(item => {
-                const itemTotal = parseFloat(item.product_price) * item.quantity;
-                subtotal += itemTotal;
-
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <img src="${item.product_image || 'https://placehold.co/50x50?text=No+Image'}" alt="${item.product_title}" class="img-thumbnail me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                            <span>${item.product_title}</span>
-                        </div>
-                    </td>
-                    <td>$${parseFloat(item.product_price).toFixed(2)}</td>
-                    <td>
-                        <input type="number" class="form-control form-control-sm quantity-input rounded"
-                               data-cart-item-id="${item.id}" value="${item.quantity}" min="1" style="width: 70px;">
-                    </td>
-                    <td>$${itemTotal.toFixed(2)}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm remove-item-btn rounded" data-cart-item-id="${item.id}">Remove</button>
-                    </td>
-                `;
-                cartTableBody.appendChild(row);
-            });
-
-            cartSubtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-            cartContainerEl.style.display = 'block';
-            emptyMessageEl.style.display = 'none';
-            updateCartCount(cartItems.length); // Update the navbar badge with actual fetched count
-
-            // Attach event listeners for quantity changes and remove buttons
-            attachCartEventListeners();
-        }
-
-        // --- Attach Event Listeners for Cart Actions ---
-        function attachCartEventListeners() {
-            // Quantity input change listener
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                input.onchange = async (event) => {
-                    const cartItemId = event.target.dataset.cartItemId;
-                    const newQuantity = parseInt(event.target.value, 10);
-
-                    if (isNaN(newQuantity) || newQuantity < 0) {
-                        showMessage('Please enter a valid quantity.', 'error');
-                        // Revert to old value if invalid
-                        const oldItem = userCart.find(item => String(item.id) === String(cartItemId));
-                        if (oldItem) event.target.value = oldItem.quantity;
-                        return;
-                    }
-
-                    await updateItemQuantity(cartItemId, newQuantity);
-                };
-            });
-
-            // Remove button click listener
-            document.querySelectorAll('.remove-item-btn').forEach(button => {
-                button.onclick = async (event) => {
-                    const cartItemId = event.target.dataset.cartItemId;
-                    await removeItemFromCart(cartItemId);
-                };
-            });
-
-            // Checkout button (placeholder)
-            document.getElementById('checkoutBtn').onclick = () => {
-                showMessage('Checkout functionality not yet implemented!', 'info');
-                // You would typically redirect to a checkout page or initiate a payment process here
-            };
-        }
-
-        // --- Send Quantity Update to Backend ---
-        async function updateItemQuantity(cartItemId, newQuantity) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/cart/update/${cartItemId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // IMPORTANT: Send currentUser.id in body for authentication middleware
-                        // 'Authorization': `Bearer ${localStorage.getItem('token')}` // If you implement JWT auth
-                    },
-                    body: JSON.stringify({
-                        quantity: newQuantity,
-                        user_id: currentUser.id // Explicitly send user_id for middleware
-                    })
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMessage(data.message || 'Cart item quantity updated.');
-                    await fetchCartItems(); // Re-fetch and re-render cart to show updated totals
-                } else {
-                    console.error('Failed to update quantity:', data.message || response.statusText);
-                    showMessage(data.message || 'Failed to update quantity. Please try again.', 'error');
-                }
-            } catch (error) {
-                console.error('Network error updating quantity:', error);
-                showMessage('Network error: Could not connect to update quantity.', 'error');
-            }
-        }
-
-        // --- Send Remove Item Request to Backend ---
-        async function removeItemFromCart(cartItemId) {
-            try {
-                // IMPORTANT: Send currentUser.id as query parameter for DELETE request
-                const response = await fetch(`${API_BASE_URL}/api/cart/remove/${cartItemId}?user_id=${currentUser.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // 'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMessage(data.message || 'Product removed from cart.');
-                    await fetchCartItems(); // Re-fetch and re-render cart
-                } else {
-                    console.error('Failed to remove item:', data.message || response.statusText);
-                    showMessage(data.message || 'Failed to remove product from cart. Please try again.', 'error');
-                }
-            } catch (error) {
-                console.error('Network error removing item:', error);
-                showMessage('Network error: Could not connect to remove item.', 'error');
-            }
-        }
-
-        // --- Render navigation based on login state (replicated from product.html) ---
-        async function renderNav() {
-            navLinks.innerHTML = "";
-            let cartLength = 0;
-
-            if (currentUser && currentUser.id) {
-                // Fetch the actual cart length from backend for the current user
-                try {
-                    // IMPORTANT: Pass user_id as query parameter for GET request
-                    const response = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // If you implement JWT auth
-                        }
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.cartItems) {
-                        cartLength = data.cartItems.length;
-                    } else {
-                        console.error('Failed to get cart count for navigation:', data.message || response.statusText);
-                        cartLength = 0; // Default to 0 on error
-                    }
-                } catch (error) {
-                    console.error('Network error getting cart count for navigation:', error);
-                    cartLength = 0; // Default to 0 on network error
-                }
-
-
-                navLinks.innerHTML = `
-                    <li class="nav-item">
-                        <a class="nav-link" href="profile.html">Profile (${currentUser.username})</a>
-                    </li>
-                    <li class="nav-item position-relative ms-3">
-                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
-                            Cart
-                            <span
-                                id="cart-count"
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            >${cartLength}</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ms-3">
-                        <button id="logoutBtn" class="btn btn-outline-light rounded">Logout</button>
-                    </li>`;
-            } else {
-                // Guest user
-                navLinks.innerHTML = `
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="signup.html">Signup</a>
-                    </li>
-                    <li class="nav-item position-relative ms-3">
-                        <a href="cart.html" class="btn btn-outline-light position-relative rounded">
-                            Cart
-                            <span
-                                id="cart-count"
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            >${cartLength}</span>
-                        </a>
-                    </li>`;
-            }
-
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-                logoutBtn.addEventListener("click", () => {
-                    localStorage.removeItem("currentUser");
-                    currentUser = null;
-                    userCart = []; // Clear local cart data
-                    location.reload(); // Reload to reflect logout state
-                });
-            }
-        }
-
-        // Helper to update cart count badge visually
-        function updateCartCount(count) {
-            const cartCountEl = document.getElementById("cart-count");
-            if (cartCountEl) cartCountEl.textContent = count;
-        }
-
-        // // Mode toggle function (replicated for consistency)
-        // let classes = ["bg-white", "bg-dark"];
-        // let textColors = ["text-dark", "text-dark", "text-dark", "text-white"];
-        // let current = 0;
-        // function mode() {
-        //     const body = document.body;
-        //     body.classList.remove(...classes, "text-white", "text-dark");
-        //     current = (current + 1) % classes.length;
-        //     body.classList.add(classes[current], textColors[current]);
-        //     body.style.backgroundImage = "none"; // Remove background image if any
-        // }
-
-        // Initialize page on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', async () => {
-            // First, render the nav bar, which will try to fetch the cart count
-            await renderNav();
-            // Then, fetch the main cart items for display on the cart page
-            await fetchCartItems();
-        });
-    </script>
-    <script src="global.js"></script>
-</body>
-
 </html>
