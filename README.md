@@ -1,5 +1,5 @@
 <!-- Banner -->
-![header](https://capsule-render.vercel.app/api?type=wave&color=0:0f0c29,100:302b63&height=200&section=header&text=Hi%20I'm%20Thunder%20Macwan%20⚡&fontSize=35&fontColor=ffffff)
+![header](https://capsule-render.vercel.app/api?type=wave&color=0:0f0c29,100:302b63&height=200&section=header&text=Hi%20I'm%20Sebastian%20Macwan%20⚡&fontSize=35&fontColor=ffffff)
 
 # 👨‍💻 About Me
 - 🎓 B.Tech Student | Full-Stack Web Developer  
