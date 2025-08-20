@@ -43,7 +43,7 @@ A full-stack eCommerce clone with authentication, shopping cart, and admin featu
 
 # 🌐 Connect with Me
 <p align="center">
-  <a href="https://linkedin.com/in/YOUR-LINKEDIN">
+  <a href="www.linkedin.com/in/sebastian-macwan-b39bb6262">
     <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
   </a>
   <a href="https://sebastianmacwan-portfolio.netlify.app/">
